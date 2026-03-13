@@ -1,13 +1,22 @@
-/* Include.gradle configuration: http://docs.nativescript.org/plugins/plugins#includegradle-specification */
+// This file is merged into the app's Gradle build by NativeScript
 
 android {
-
+    // (Usually nothing required here for this fix)
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency { details ->
+        // Replace the older groupId artifact with the 16KB-safe one
+        if (details.requested.group == "com.github.scottyab" &&
+            details.requested.name == "rootbeer") {
+            details.useTarget("com.scottyab:rootbeer-lib:0.1.1")
+            details.because("Force 16KB-safe RootBeer build to fix 4KB-aligned libtoolchecker.so")
+        }
+    }
+}
 
 dependencies {
-    // Describe plugin native Android dependencies like
-    // implementation "groupName:pluginName:ver"
-    // EXAMPLE: implementation "com.facebook.fresco:fresco:0.9.0+"
-    implementation 'com.scottyab:rootbeer-lib:0.0.7'
+    // If the plugin explicitly declares the old artifact, shadow it here as well:
+    // implementation("com.github.scottyab:rootbeer:0.1.0") // (remove/avoid)
+    implementation("com.scottyab:rootbeer-lib:0.1.1")
 }
